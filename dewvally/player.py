@@ -111,12 +111,12 @@ class Player(pygame.sprite.Sprite):
             
 
         # tool use
-        elif self.timers['tool use'].active:
+        if self.timers['tool use'].active:
 
             # self.status = 'right_axe'
             self.status = self.status.split('_')[0] + '_' + self.selected_tool
-        # else:
-        #     self.status = self.status.split('_')[0] + '_idle'
+        else:
+            self.status = self.status.split('_')[0] + '_idle'
 
 
     def update_timers(self):
