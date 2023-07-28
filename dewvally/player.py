@@ -17,6 +17,8 @@ class Player(pygame.sprite.Sprite):
         # self.image.fill('green')
         self.image = self.animations[self.status][self.frame_index]
         self.rect = self.image.get_rect(center=pos)
+        self.z = LAYERS['main']
+
         # movements attributes
         self.direction = pygame.math.Vector2()
         self.pos = pygame.math.Vector2(self.rect.center)
@@ -25,7 +27,9 @@ class Player(pygame.sprite.Sprite):
         # timers
         self.timers = {
             'tool use': Timer(350, self.use_tool),
-            'tool switch': Timer(200)
+            'tool switch': Timer(200),
+            'seed use': Timer(350, self.use_seed),
+            'seed switch': Timer(200)
         }
 
         # tools
@@ -33,9 +37,15 @@ class Player(pygame.sprite.Sprite):
         self.tool_index = 0
         self.selected_tool = self.tools[self.tool_index]
 
-    def use_tool(self):
-        print('use tool')
+        # seeds
+        self.seeds = ['corn','tomato']
+        self.seed_index = 0
+        self.selected_seed = self.seeds[self.seed_index]
 
+    def use_tool(self):
+        pass
+    def use_seed(self):
+        pass
     def import_assets(self):
 
         self.animations = {
@@ -82,19 +92,12 @@ class Player(pygame.sprite.Sprite):
             if keys[pygame.K_SPACE]:
                 # timer for tool use after timer is done player should end animation
                 self.timers['tool use'].activate()
-                if self.timers['tool use'].active:
-                    print('activated')
+
                 self.direction = pygame.math.Vector2()
                 self.frame_index = 1
                     # self.direction = pygame.Vector2()
 
-        
-
-            # else:
-            #     if not keys[pygame.K_SPACE]:
-            #         self.timers['tool use'].deactivate()
-            # change tool
-            # if keys[pygame.K_q] and not self.timers['tool switch'].active:
+            # Change tool
             if keys[pygame.K_q] and not tool_switch_active:
                 self.timers['tool switch'].activate()
                 self.tool_index += 1
@@ -102,8 +105,23 @@ class Player(pygame.sprite.Sprite):
                     self.tools) else 0
 
                 self.selected_tool = self.tools[self.tool_index]
-        # Tests that pressing the space key activates the tool use timer, sets direction and frame index to 0, and stops the tool usage timer
 
+            #  Seed use
+            if keys[pygame.K_LCTRL]:
+                self.timers['seed use'].activate()
+                self.direction = pygame.math.Vector2()
+                self.frame_index = 0
+
+
+            # change seed
+            if keys[pygame.K_e] and not self.timers['seed switch'].active:
+                self.timers['seed switch'].activate()
+                self.seed_index += 1
+                self.seed_index = self.seed_index if self.seed_index < len(
+                    self.seeds) else 0
+                self.selected_seed = self.seeds[self.seed_index]
+    
+    
     def get_status(self):
         # idle
         if self.direction.magnitude() > 0:
@@ -117,7 +135,6 @@ class Player(pygame.sprite.Sprite):
             self.status = self.status.split('_')[0] + '_' + self.selected_tool
         else:
             self.status = self.status.split('_')[0] + '_idle'
-
 
     def update_timers(self):
         for timer in self.timers.values():
@@ -134,6 +151,7 @@ class Player(pygame.sprite.Sprite):
         # vertical
         self.pos.y += self.direction.y * self.speed * dt
         self.rect.centery = self.pos.y
+
 
     def update(self, dt):
         self.input()
